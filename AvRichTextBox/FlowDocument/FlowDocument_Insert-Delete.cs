@@ -304,6 +304,7 @@ public partial class FlowDocument
          originalPar.Inlines.Insert(originalPar.Inlines.Count, new EditableRun(""));
       }
 
+      // INFO: если нужно чтобы новая строка начиналась слева то тут менять
       Paragraph parToInsert = originalPar.PropertyClone();
 
       parToInsert.Inlines.AddRange(RunList2);

@@ -50,7 +50,7 @@ public class EditableLineBreak : LineBreak, IEditable, INotifyPropertyChanged
    }
 
    public string InlineToolTip => "";
-   
 
+   public TextAlignment? TextAlignment { get; set; }
 }
 

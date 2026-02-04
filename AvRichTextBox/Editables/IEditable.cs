@@ -31,6 +31,7 @@ public interface IEditable : INotifyPropertyChanged
    public SolidColorBrush BackBrush { get; }
    public string DisplayInlineText { get; }
    public string InlineToolTip { get; }
-   
+   public TextAlignment? TextAlignment { get; set; }
+
 }
 

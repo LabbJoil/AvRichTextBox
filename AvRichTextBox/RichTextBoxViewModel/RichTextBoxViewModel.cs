@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls.Primitives;
 using Avalonia.Threading;
 using System;
 using System.ComponentModel;
@@ -50,7 +51,10 @@ public class RichTextBoxViewModel : INotifyPropertyChanged
    private bool _CaretVisible = true;
    public bool CaretVisible { get => _CaretVisible; set { _CaretVisible = value; NotifyPropertyChanged(nameof(CaretVisible)); } }
 
-   
+   private ScrollBarVisibility _VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+   public ScrollBarVisibility VerticalScrollBarVisibility { get => _VerticalScrollBarVisibility; set { _VerticalScrollBarVisibility = value; NotifyPropertyChanged(nameof(VerticalScrollBarVisibility)); } }
+
+
    // FOR VISUAL CARET TESTING////////////////////////////////////////
    private double _LineHeightRectHeight = 5;
    public double LineHeightRectHeight { get => _LineHeightRectHeight; set { _LineHeightRectHeight = value; NotifyPropertyChanged(nameof(LineHeightRectHeight)); } }

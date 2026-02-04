@@ -87,8 +87,8 @@ public partial class RichTextBox : UserControl
       else
          //caretMTop = selStartPoint.Value.Y;
          caretMTop = textTopY;
-
-      rtbVM.CaretMargin = new Thickness(caretMLeft, caretMTop, 0, 0);
+      //FlowDoc.Selection.PrevCharRect.
+      rtbVM.CaretMargin = new Thickness(caretMLeft + 4, caretMTop, 0, 0);
       rtbVM.UpdateCaretVisible();
 
       // Visualization rectangles:

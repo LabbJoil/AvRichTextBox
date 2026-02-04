@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using System.Diagnostics;
@@ -82,7 +83,13 @@ public partial class RichTextBox
       else
       {
          if (backspace)
-            if (FlowDoc.Selection.Start == 0) return;
+            if (FlowDoc.Selection.Start == 0)
+            {
+               if (FlowDoc.Blocks.Count > 0 && FlowDoc.Blocks[0] is Paragraph paragraph)
+                  paragraph.TextAlignment = TextAlignment.Left;
+               rtbVM.CaretMargin = new Thickness(0, 0, 0, 0);
+               return;
+            }
          else
             if (FlowDoc.Selection.Start >= FlowDoc.Selection.StartParagraph.StartInDoc + FlowDoc.Selection.StartParagraph.BlockLength)
                return;

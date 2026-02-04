@@ -23,7 +23,11 @@ public class Paragraph : Block
    private void Inlines_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
    {
       foreach (IEditable ied in Inlines)
+      {
          ied.myParagraph = this;
+         if (ied.TextAlignment != null)
+            TextAlignment = (TextAlignment)ied.TextAlignment;
+      }
             
    }
 

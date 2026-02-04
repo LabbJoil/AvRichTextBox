@@ -75,7 +75,7 @@
 
 
 		<ScrollViewer x:Name="FlowDocSV"  HorizontalScrollBarVisibility="Disabled" Margin="0" Padding="0"
-					   Offset="{Binding RTBScrollOffset, Mode=OneWay}"  ScrollChanged="ScrollViewer_ScrollChanged"
+					   Offset="{Binding RTBScrollOffset, Mode=OneWay}"  ScrollChanged="ScrollViewer_ScrollChanged" VerticalScrollBarVisibility="{Binding VerticalScrollBarVisibility}"
 					  PointerPressed="FlowDocSV_PointerPressed" PointerMoved="FlowDocSV_PointerMoved" PointerReleased="FlowDocSV_PointerReleased" >
 
 
@@ -103,7 +103,7 @@
 
 											<!--LineHeight="{Binding LineHeight}"-->
 
-											<local:EditableParagraph xml:space="preserve" TextWrapping="Wrap" Margin="0"
+											<local:EditableParagraph xml:space="preserve" TextWrapping="Wrap" Margin="0" Padding="4,0"
 													LineSpacing="{Binding LineSpacing}"
 													FontFamily="{Binding FontFamily}"
 													FontWeight="{Binding FontWeight}"

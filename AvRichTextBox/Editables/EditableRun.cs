@@ -77,7 +77,7 @@ public class EditableRun : Run, IEditable, INotifyPropertyChanged
 
    public string InlineToolTip => $"Background: {Background}\nForeground: {Foreground}\nFontFamily: {FontFamily}";
 
-
+   public TextAlignment? TextAlignment { get; set; }
 }
 
 

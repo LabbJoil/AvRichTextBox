@@ -67,6 +67,13 @@ public partial class RichTextBox : UserControl
       this.GotFocus += RichTextBox_GotFocus;
       this.LostFocus += RichTextBox_LostFocus;
 
+      this.GetObservable(CaretColorProperty)
+        .Subscribe(color =>
+        {
+           if (_CaretRect != null)
+              _CaretRect.Stroke = new SolidColorBrush(color);
+        });
+
    }
 
    private void RichTextBox_Initialized(object? sender, EventArgs e)
@@ -124,15 +131,24 @@ public partial class RichTextBox : UserControl
 
       }
 
+      if (e.Property.Name == "VerticalScrollBarVisibility")
+      {
+         rtbVM.VerticalScrollBarVisibility = VerticalScrollBarVisibility;
+      }
+
    }
 
    private void RichTextBox_GotFocus(object? sender, GotFocusEventArgs e)
    {
+      if (_CaretRect != null)
+         _CaretRect.IsVisible = true;
       //Debug.WriteLine("Got focus rtb");
    }
 
    private void RichTextBox_LostFocus(object? sender, RoutedEventArgs e)
    {
+      if (_CaretRect != null)
+         _CaretRect.IsVisible = false;
       //Debug.WriteLine("lost focus rtb");
    }
 
@@ -216,9 +232,9 @@ public partial class RichTextBox : UserControl
    private readonly Rectangle? _CaretRect = new()
    {
       StrokeThickness = 2,
-      Stroke = Brushes.Black,
       Height = 20,
       Width = 1.5,
+      
       IsVisible = false,
       HorizontalAlignment = HorizontalAlignment.Left,
       VerticalAlignment = VerticalAlignment.Top,

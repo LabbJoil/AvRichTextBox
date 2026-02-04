@@ -2,6 +2,7 @@
   <PropertyGroup>
 
 	  <TargetFramework>net8.0</TargetFramework>
+	  <OutputType>Library</OutputType>
 	  <Nullable>enable</Nullable>
 	  <LangVersion>latest</LangVersion>
 
@@ -23,7 +24,6 @@
 
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
       <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-	  <PackageOutputPath>D:\PROG\LocalNuget\AvRichTextBox</PackageOutputPath>
 	  <AssemblyVersion>1.2.5</AssemblyVersion>
   </PropertyGroup>
 
@@ -78,7 +78,9 @@
     </Reference>
   </ItemGroup>
 
-
+	<ItemGroup>
+		<None Include="RtfDomParserAv.dll" Pack="true" PackagePath="lib/net8.0/" />
+	</ItemGroup>
 	
 	<ItemGroup>
     <Compile Update="FlowDocument\FlowDocument_RangeXaml.cs">
