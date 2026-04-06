@@ -57,6 +57,9 @@ public partial class RichTextBox
    {
       if (IsReadOnly) return;
 
+      if (FlowDoc.Selection.GetStartInline() is EditableRun er && er.IsVariable)
+         return;
+
       bool TextPasted = false;
       int originalSelectionStart = FlowDoc.Selection.Start;
       int newSelPoint = originalSelectionStart;

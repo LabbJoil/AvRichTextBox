@@ -168,7 +168,7 @@ internal static partial class RtfConversions
       if (ied.GetType() == typeof(EditableRun))
       {
          EditableRun run = (EditableRun)ied;
-         
+
          if (!BoldOn && run.FontWeight == FontWeight.Bold) { iedSB.Append(@"\b "); BoldOn = true; }
          if (!ItalicOn && run.FontStyle == FontStyle.Italic) { iedSB.Append(@"\i "); ; ItalicOn = true; }
          if (!UnderlineOn && run.TextDecorations == TextDecorations.Underline) { iedSB.Append(@"\ul "); ; UnderlineOn = true; }
@@ -193,7 +193,17 @@ internal static partial class RtfConversions
             iedSB.Append(@"\highlight0 "); // Reset background to default
 
          if (!string.IsNullOrEmpty(run.Text))
-            iedSB.Append(GetRtfRunText(run.Text!, ref currentLang));
+         {
+            if (run.IsVariable)
+            {
+               iedSB.Append($@"\v __VAR_START__ \v0 {GetRtfRunText(run.VariableName, ref currentLang)}\v __VAR_END__ \v0 ");
+            }
+            else
+            {
+               string escaped = GetRtfRunText(run.Text, ref currentLang);
+               iedSB.Append(escaped);
+            }
+         }
       }
 
       return iedSB.ToString();
@@ -236,7 +246,7 @@ internal static partial class RtfConversions
          }
       }
          
-      fontAndColorTableSB.Append(@"{\rtf1\ansi\deff0 {\fonttbl");
+      fontAndColorTableSB.Append(@"{\rtf1\ansicpg1251\deff0 {\fonttbl");
       foreach (var kvp in fontMap)
          fontAndColorTableSB.Append($@"{{\f{kvp.Value}\fnil {kvp.Key};}}");
       fontAndColorTableSB.Append('}');
@@ -289,10 +299,8 @@ internal static partial class RtfConversions
 
    }
 
-
    private static string GetRtfRunText(string text, ref int currentLang)
    {
-  
       StringBuilder sb = new();
 
       foreach (char c in text)
@@ -306,15 +314,15 @@ internal static partial class RtfConversions
          }
 
          if (c is '\\' or '{' or '}')
-            sb.Append(@"\" + c); // RTF control characters
-         else if (c > 127) // Non-ASCII (double-byte characters)
-            sb.Append(@"\u" + (int)c + "?"); // Unicode escape
+            sb.Append(@"\" + c);
+         else if (c == ' ')
+            sb.Append(@"\u32?");
+         else if (c > 127)
+            sb.Append(@"\u" + (int)c + "?");
          else
             sb.Append(c);
-
       }
+
       return sb.ToString();
    }
-
-
 }

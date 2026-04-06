@@ -9,12 +9,13 @@ using static AvRichTextBox.XamlConversions;
 using RtfDomParserAv;
 using System.Text;
 using HtmlAgilityPack;
+using System.Threading.Tasks;
 
 namespace AvRichTextBox;
 
 public partial class FlowDocument
 {
-	internal void LoadRtf(string rtfContent)
+	internal async Task LoadRtf(string rtfContent)
 	{
 		RTFDomDocument rtfdom = new();
 
@@ -31,19 +32,26 @@ public partial class FlowDocument
 
 		try
 		{
-			ClearDocument();
-			GetFlowDocumentFromRtf(rtfdom!, this);
-			InitializeDocument();
-		}
-		catch (Exception ex2) { Debug.WriteLine($"error getting flow doc:\n{ex2.Message}"); }
-	}
+         if (rtfdom.Elements.Count > 0)
+         {
+            ClearDocument();
+            GetFlowDocumentFromRtf(rtfdom!, this);
+            await InitializeDocument();
+         }
+      }
+		catch (Exception ex2)
+		{ 
+			Debug.WriteLine($"error getting flow doc:\n{ex2.Message}");
+         await NewDocument();
+      }
+   }
 	
-	internal void LoadRtfFromFile(string fileName)
+	internal async Task LoadRtfFromFile(string fileName)
 	{
 		try
 		{
 			string rtfContent = File.ReadAllText(fileName);
-			LoadRtf(rtfContent);
+			await LoadRtf(rtfContent);
 		}
 		catch (Exception ex3)
 		{
@@ -76,10 +84,10 @@ public partial class FlowDocument
 		File.WriteAllText(fileName, SaveXaml());
 	}
 
-	internal void LoadXamlFromFile(string fileName)
+	internal async Task LoadXamlFromFile(string fileName)
 	{
 		string xamlDocString = File.ReadAllText(fileName);
-		LoadXaml(xamlDocString);
+		await LoadXaml(xamlDocString);
 	}
 
 	internal string SaveXaml()
@@ -87,10 +95,10 @@ public partial class FlowDocument
 		return GetDocXaml(false, this);
 	}
 
-	internal void LoadXaml(string xamlContent)
+	internal async Task LoadXaml(string xamlContent)
 	{
 		ProcessXamlString(xamlContent, this);
-		InitializeDocument();
+		await InitializeDocument();
 	}
 
 	internal void SaveHtmlDocToFile(string fileName)
@@ -105,11 +113,11 @@ public partial class FlowDocument
 		return hdoc.DocumentNode.OuterHtml;
 	}
 
-	internal void LoadHtmlDocFromFile(string fileName)
+	internal async Task LoadHtmlDocFromFile(string fileName)
 	{
 		try
 		{
-			LoadHtml(File.ReadAllText(fileName));
+			await LoadHtml(File.ReadAllText(fileName));
 		}
 		catch (Exception ex3)
 		{
@@ -121,7 +129,7 @@ public partial class FlowDocument
 
 	}
 	
-	internal void LoadHtml(string htmlContent)
+	internal async Task LoadHtml(string htmlContent)
 	{
 		try
 		{
@@ -129,7 +137,7 @@ public partial class FlowDocument
 			HtmlDocument hdoc = new();
 			hdoc.LoadHtml(htmlContent);
 			HtmlConversions.GetFlowDocumentFromHtml(hdoc, this);
-			InitializeDocument();
+			await InitializeDocument();
 		}
 		catch (Exception ex2) { Debug.WriteLine("error getting flow doc:\n" + ex2.Message); }
 	}
@@ -140,7 +148,7 @@ public partial class FlowDocument
 		WordConversions.SaveWordDoc(fileName, this);
 	}
 
-	internal void LoadWordDocFromFile(string fileName)
+	internal async Task LoadWordDocFromFile(string fileName)
 	{
 		try
 		{
@@ -149,7 +157,7 @@ public partial class FlowDocument
 			{
 				ClearDocument();
 				GetFlowDocument(WordDoc.MainDocumentPart!, this);
-				InitializeDocument();
+				await InitializeDocument();
 			}
 			catch (Exception ex2) { Debug.WriteLine("error getting flow doc:\n" + ex2.Message); }
 		}
@@ -163,12 +171,12 @@ public partial class FlowDocument
 
 	}
 
-	internal void LoadXamlPackage(string fileName)
+	internal async Task LoadXamlPackage(string fileName)
 	{
 
 		XamlConversions.LoadXamlPackage(fileName, this);
 
-		InitializeDocument();
+		await InitializeDocument();
 
 	}
 

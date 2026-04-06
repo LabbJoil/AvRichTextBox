@@ -20,7 +20,7 @@ public class RichTextBoxViewModel : INotifyPropertyChanged
    private Vector _RTBScrollOffset = new (0, 0);
    public Vector RTBScrollOffset { get => _RTBScrollOffset; set { if (_RTBScrollOffset != value) _RTBScrollOffset = value; NotifyPropertyChanged(nameof(RTBScrollOffset)); } }
 
-   public double MinWidth => RunDebuggerVisible ? 500 : 100;
+   public double MinWidth => RunDebuggerVisible ? 500 : 0;
 
    private FlowDocument _FlowDoc = null!;
    //public FlowDocument FlowDoc { get => _FlowDoc;  set { _FlowDoc = value; NotifyPropertyChanged(nameof(FlowDoc));  } }

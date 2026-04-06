@@ -1,16 +1,17 @@
-﻿using Avalonia.Media;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using static AvRichTextBox.HelperMethods;
-using RtfDomParserAv;
-using System.Collections.Generic;
-using Avalonia.Controls.Documents;
+﻿using Avalonia.Controls.Documents;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using DynamicData;
+using RtfDomParserAv;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Avalonia.Media.Imaging;
-using System.IO;
+using static AvRichTextBox.HelperMethods;
 
 namespace AvRichTextBox;
 
@@ -139,6 +140,9 @@ internal static partial class RtfConversions
 
    private static List<IEditable> GetRtfTextElementsAsInlines(RTFDomElementList elements)
    {
+      var insideVariable = false;
+      StringBuilder variableBuffer = new();
+      DocumentFormatInfo? variableFormat = null;
       List<IEditable> returnList = [];
 
       foreach (RTFDomElement domelm in elements)
@@ -194,9 +198,81 @@ internal static partial class RtfConversions
          }
 
          else if (domelm is RTFDomText rtftext2)
-         {            
+         {
+            string text = rtftext2.Text ?? "";
+
+            if (text.Trim() == "__VAR_START__")
+            {
+               insideVariable = true;
+               variableBuffer.Clear();
+               continue;
+            }
+
+            //if (text.Trim() == "__VAR_END__")
+            //{
+            //   insideVariable = false;
+
+            //   var variableRun = new EditableRun(variableBuffer.ToString())
+            //   {
+            //      IsVariable = true,
+            //      Background = new SolidColorBrush(Colors.Gray)
+            //   };
+
+            //   returnList.Add(variableRun);
+            //   variableBuffer.Clear();
+            //   continue;
+            //}
+
+            if (text.Trim() == "__VAR_END__")
+            {
+               insideVariable = false;
+               var variableName = variableBuffer.ToString();
+
+               var variableRun = new EditableRun($"[[{variableName}]]")
+               {
+                  IsVariable = true,
+                  VariableName = variableName
+               };
+
+               if (variableFormat != null)
+               {
+                  variableRun.FontSize = variableFormat.FontSize;
+                  variableRun.FontFamily = new FontFamily(variableFormat.FontName);
+                  variableRun.Foreground = new SolidColorBrush(variableFormat.TextColor);
+                  variableRun.Background = new SolidColorBrush(variableFormat.BackColor);
+
+                  if (variableFormat.Bold)
+                     variableRun.FontWeight = FontWeight.Bold;
+
+                  if (variableFormat.Italic)
+                     variableRun.FontStyle = FontStyle.Italic;
+
+                  if (variableFormat.Underline)
+                     variableRun.TextDecorations = TextDecorations.Underline;
+               }
+
+               returnList.Add(variableRun);
+               variableBuffer.Clear();
+               variableFormat = null;
+
+               continue;
+            }
+
+            //if (insideVariable)
+            //{
+            //   variableBuffer.Append(text);
+            //   continue;
+            //}
+
+            if (insideVariable)
+            {
+               variableBuffer.Append(text);
+               variableFormat ??= rtftext2.Format;
+               continue;
+            }
+
             //EditableRun erun = new(DecodeRtfUnicode(rtftext2.Text))
-            EditableRun erun = new(rtftext2.Text)
+            EditableRun erun = new(rtftext2.Text ?? "")
             {
                FontSize = rtftext2.Format.FontSize
             };

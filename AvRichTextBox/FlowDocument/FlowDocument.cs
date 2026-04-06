@@ -108,7 +108,7 @@ public partial class FlowDocument : AvaloniaObject, INotifyPropertyChanged
       Selection.Start_Changed += SelectionStart_Changed;
       Selection.End_Changed += SelectionEnd_Changed;
 
-      NewDocument();
+      _ = NewDocument();
 
       DefineFormatRunActions();
 
@@ -126,7 +126,7 @@ public partial class FlowDocument : AvaloniaObject, INotifyPropertyChanged
       }
    }
 
-   internal void NewDocument()
+   internal async Task NewDocument()
    {
       ClearDocument();
 
@@ -135,7 +135,7 @@ public partial class FlowDocument : AvaloniaObject, INotifyPropertyChanged
       newpar.Inlines.Add(newerun);
       Blocks.Add(newpar);
 
-      InitializeDocument();
+      await InitializeDocument();
 
    }
 
@@ -156,19 +156,19 @@ public partial class FlowDocument : AvaloniaObject, INotifyPropertyChanged
    }
 
 
-   internal void InitializeDocument()
+   internal async Task InitializeDocument()
    {
       Selection.Start = 0;  //necessary
       Selection.CollapseToStart();
 
-      InitializeParagraphs();
+      await InitializeParagraphs();
 
       UpdateRTBCaret?.Invoke();
 
 
    }
 
-   internal async void InitializeParagraphs()
+   internal async Task InitializeParagraphs()
    {
       UpdateBlockAndInlineStarts(0);
 

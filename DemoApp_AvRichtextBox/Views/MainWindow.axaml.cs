@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace DemoApp_AvRichtextBox.Views;
 
@@ -36,21 +37,29 @@ public partial class MainWindow : Window
 
    }
 
-   private void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+   private async void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
    {
       MainRTB.FlowDocument.Selection_Changed += FlowDocument_Selection_Changed;
 
       progChange = false;
+      MainRTB.InsertVariable("Вова 1");
+      var ttt = MainRTB.SaveRtf();
+      await MainRTB.LoadRtf(ttt);
 
+      // {\fs32 \f0 \cf1 \highlight0 \v __VAR_START__ \v0 [[789]]\v __VAR_END__ \v0 }
+      //await MainRTB.LoadRtf("{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fnil Meiryo;}}{\\colortbl;\\red255\\green255\\blue255;}\\margl0\\margr0\\margt0\\margb0\\pard\\ql\\sl559\\slmult0\\fs32 \\f0 \\cf1 \\highlight0 \\fs32 \\f0 \\cf1 \\highlight0 \\v __VAR_START__ \\v0 [[789]]\\v __VAR_END__ \\v0 \\fs32 \\f0 \\cf1 \\highlight0 }");
+      //await MainRTB.LoadRtf("{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fnil Meiryo;}}{\\colortbl;\\red255\\green255\\blue255;\\red128\\green128\\blue128;}\\margl0\\margr0\\margt0\\margb0\\pard\\ql\\sl559\\slmult0\\fs32 \\f0 \\cf1 \\highlight0 \\v __VAR_START__ \\v0 [[789]]\\v __VAR_END__ \\v0 \\fs32 \\f0 \\cf1 \\highlight0 }");
+      //await MainRTB.LoadRtf("{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fnil Meiryo;}{\\f1\\fnil Ink Free;}}{\\colortbl;\\red0\\green0\\blue0;\\red0\\green255\\blue0;\\red255\\green255\\blue255;}\\margl0\\margr0\\margt0\\margb0\\pard\\qr\\sl559\\slmult0\\fs32 \\f0 \\cf1 \\highlight0 \\b \\i \\ul \\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\par \\pard\\ql\\sl559\\slmult0\\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\par \\pard\\qr\\sl559\\slmult0\\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\par \\pard\\qc\\sl559\\slmult0\\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\b0 \\fs32 \\f1 \\cf1 \\highlight2  \\b \\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\par \\pard\\qr\\sl559\\slmult0\\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\par \\pard\\ql\\sl559\\slmult0\\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\par \\pard\\ql\\sl559\\slmult0\\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\par \\pard\\qc\\sl559\\slmult0\\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\b0 \\fs32 \\f1 \\cf1 \\highlight2  \\b \\fs32 \\f1 \\cf1 \\highlight2 Gfgfgfyt65\\fs32 \\f1 \\cf1 \\highlight0 6yr\\b0 \\i0 \\ul0 \\fs32 \\f0 \\cf1 \\highlight0 }");
+      //await MainRTB.LoadRtf("{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fnil Meiryo;}}{\\colortbl;\\red0\\green0\\blue0;}\\margl0\\margr0\\margt0\\margb0\\pard\\ql\\sl559\\slmult0\\fs32 \\f0 \\cf1 \\highlight0 1212}");
       ////Temp debugging
       //string testLocation = Path.Combine(AppContext.BaseDirectory, "TestFiles");
       //MainRTB.LoadWordDoc(Path.Combine(testLocation, "TestDocumentWord.docx"));
 
    }
 
-   private void CreateNewDocumentMenuItem_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+   private async void CreateNewDocumentMenuItem_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
    {
-      MainRTB.CloseDocument();
+      await MainRTB.CloseDocument();
       
    }
 

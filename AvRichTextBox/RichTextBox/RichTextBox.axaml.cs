@@ -14,6 +14,7 @@ using Avalonia.VisualTree;
 using DynamicData;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AvRichTextBox;
 
@@ -111,7 +112,7 @@ public partial class RichTextBox : UserControl
       UpdateAllInlines();
    }
 
-   private void RichTextBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+   private async void RichTextBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
    {
       
       if (e.Property.Name == "FlowDocument")
@@ -126,7 +127,7 @@ public partial class RichTextBox : UserControl
 
          rtbVM.FlowDoc.ScrollInDirection += rtbVM.FlowDoc_ScrollInDirection;
          rtbVM.FlowDoc.UpdateRTBCaret += rtbVM.FlowDoc_UpdateRTBCaret;
-         rtbVM.FlowDoc.InitializeDocument();
+         await rtbVM.FlowDoc.InitializeDocument();
          CreateClient();
 
       }
@@ -243,28 +244,28 @@ public partial class RichTextBox : UserControl
 
 
    public void InvalidateCaret() { rtbVM.CaretVisible = true;  }
-   public void NewDocument() { FlowDoc.NewDocument(); }
-   public void CloseDocument() { FlowDoc.NewDocument();  rtbVM.RTBScrollOffset = new Vector(0, 0);  }
+   public async Task NewDocument() { await FlowDoc.NewDocument(); }
+   public async Task CloseDocument() { await FlowDoc.NewDocument();  rtbVM.RTBScrollOffset = new Vector(0, 0);  }
    //Load/save
-	public void LoadRtf(string rtf) { FlowDoc.LoadRtf(rtf); }
-   public void LoadRtfDoc(string fileName) { FlowDoc.LoadRtfFromFile(fileName);  }
+	public async Task LoadRtf(string rtf) { await FlowDoc.LoadRtf(rtf); }
+   public async Task LoadRtfDoc(string fileName) { await FlowDoc.LoadRtfFromFile(fileName);  }
 
 	public string SaveRtf() { return FlowDoc.SaveRtf(); }
    public void SaveRtfDoc(string fileName) { FlowDoc.SaveRtfToFile(fileName);  }
-   public void LoadWordDoc(string fileName) { FlowDoc.LoadWordDocFromFile(fileName);  }
+   public async Task LoadWordDoc(string fileName) { await FlowDoc.LoadWordDocFromFile(fileName);  }
    public void SaveWordDoc(string filename) { FlowDoc.SaveWordDocToFile(filename); }
-	public void LoadHtml(string html) { FlowDoc.LoadHtml(html); }
+	public async Task LoadHtml(string html) { await FlowDoc.LoadHtml(html); }
 
 	public string SaveHtml() { return FlowDoc.SaveHtml(); }
-   public void LoadHtmlDoc(string fileName) { FlowDoc.LoadHtmlDocFromFile(fileName);  }
+   public async Task LoadHtmlDoc(string fileName) { await FlowDoc.LoadHtmlDocFromFile(fileName);  }
    public void SaveHtmlDoc(string filename) { FlowDoc.SaveHtmlDocToFile(filename); }
 	
-   public void LoadXaml (string fileName) { FlowDoc.LoadXamlFromFile(fileName); }
+   public async Task LoadXaml (string fileName) { await FlowDoc.LoadXamlFromFile(fileName); }
    public void SaveXamlPackage (string fileName) { FlowDoc.SaveXamlPackage(fileName); }
-	public void LoadXamlString(string xaml) { FlowDoc.LoadXaml(xaml); }
+	public async Task LoadXamlString(string xaml) { await FlowDoc.LoadXaml(xaml); }
 	public string SaveXamlString() { return FlowDoc.SaveXaml(); }
    public void SaveXaml (string fileName) { FlowDoc.SaveXamlToFile(fileName); }
-   public void LoadXamlPackage (string fileName) { FlowDoc.LoadXamlPackage(fileName);  }
+   public async Task LoadXamlPackage (string fileName) { await FlowDoc.LoadXamlPackage(fileName);  }
 
    private void MovePage(int direction, bool extend)
    {  //Debug.WriteLine("trying to move page");

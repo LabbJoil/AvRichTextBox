@@ -36,7 +36,7 @@ public partial class MainWindow : Window
          if (f != null)
          {
             openFilePath = f;
-            MainRTB.LoadXamlPackage(f);
+            await MainRTB.LoadXamlPackage(f);
             ShowPagePaddingValue();
          }
             
@@ -69,7 +69,7 @@ public partial class MainWindow : Window
          if (f != null)
          {
             openFilePath = f;
-            MainRTB.LoadRtfDoc(f);
+            await MainRTB.LoadRtfDoc(f);
             ShowPagePaddingValue();
          }
       }
@@ -102,7 +102,7 @@ public partial class MainWindow : Window
          if (f != null)
          {
             openFilePath = f;
-            MainRTB.LoadWordDoc(f);
+            await MainRTB.LoadWordDoc(f);
             ShowPagePaddingValue();
          }
             
@@ -139,7 +139,7 @@ public partial class MainWindow : Window
          if (f != null)
          {
             openFilePath = f;
-            MainRTB.LoadHtmlDoc(f);
+            await MainRTB.LoadHtmlDoc(f);
             ShowPagePaddingValue();
          }
 

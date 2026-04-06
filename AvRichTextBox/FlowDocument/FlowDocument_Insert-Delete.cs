@@ -14,6 +14,36 @@ public partial class FlowDocument
    {
       if (Selection.GetStartInline() is not IEditable startInline || startInline.GetType() == typeof(EditableInlineUIContainer)) return;
 
+      if (startInline is EditableRun variableRun && variableRun.IsVariable)
+      {
+         var p = Selection.StartParagraph;
+         var parIndex = Blocks.IndexOf(p);
+
+         var varStart = variableRun.TextPositionOfInlineInParagraph + p.StartInDoc;
+         var varEnd = varStart + variableRun.InlineLength;
+
+         if (Selection.Start > varStart && Selection.Start < varEnd)
+            return;
+
+         var inlineIndex = p.Inlines.IndexOf(variableRun);
+
+         var newRun = new EditableRun("");
+
+         if (Selection.Start == varEnd)
+            p.Inlines.Insert(inlineIndex + 1, newRun);
+         else if (Selection.Start == varStart)
+            p.Inlines.Insert(inlineIndex, newRun);
+
+         UpdateBlockAndInlineStarts(parIndex);
+
+         Selection.Start = newRun.TextPositionOfInlineInParagraph + p.StartInDoc;
+         Selection.CollapseToStart();
+
+         SelectionStart_Changed(Selection, Selection.Start);
+
+         startInline = newRun;
+      }
+
       if (insertText != null)
       {
          if (Selection!.Length > 0)
@@ -63,15 +93,30 @@ public partial class FlowDocument
 
    internal void DeleteChar(bool backspace)
    {
-      int originalSelectionStart = Selection.Start;
+      var originalSelectionStart = Selection.Start;
+      IEditable? startInline = Selection.GetStartInline();
 
       if (backspace)
+      {
+         if (startInline is EditableRun run && run.IsVariable)
+         {
+            RemoveVariableRun(run);
+            return;
+         }
+
          MoveSelectionLeft(true);
+         startInline = Selection.GetStartInline();
+      }
+
+      if (startInline is EditableRun er && er.IsVariable)
+      {
+         RemoveVariableRun(er);
+         return;
+      }
 
       Selection!.BiasForwardStart = true;
       Selection!.BiasForwardEnd = true;
 
-      IEditable startInline = Selection.GetStartInline();
       if (startInline == null) return;
 
       Paragraph startP = (Paragraph)Selection.StartParagraph;
@@ -122,6 +167,46 @@ public partial class FlowDocument
                else
                {
                   selectionStartInInline = startInline.GetCharPosInInline(Selection.Start);
+
+                  if (selectionStartInInline == startInline.InlineLength)
+                  {
+                     nextInline = GetNextInline(startInline);
+                     if (nextInline is EditableRun nextRun && nextRun.InlineLength > 0)
+                     {
+                        if (nextRun.IsVariable)
+                           RemoveVariableRun(nextRun);
+                        else
+                        {
+                           nextRun.InlineText = nextRun.InlineText.Remove(0, 1);
+                           UpdateTextRanges(Selection.Start, -1);
+                           UpdateBlockAndInlineStarts(Blocks.IndexOf(Selection.StartParagraph));
+                        }
+                        return;
+                     }
+                     return;
+                  }
+                  if (backspace && selectionStartInInline == 0)
+                  {
+                     var prevInline = GetPreviousInline(startInline);
+                     if (prevInline is EditableRun prevRun && prevRun.InlineLength > 0)
+                     {
+                        if (prevRun.IsVariable)
+                        {
+                           RemoveVariableRun(prevRun);
+                        }
+                        else
+                        {
+                           int lastIndex = prevRun.InlineLength - 1;
+                           prevRun.InlineText = prevRun.InlineText.Remove(lastIndex, 1);
+
+                           UpdateTextRanges(Selection.Start - 1, -1);
+                           UpdateBlockAndInlineStarts(Blocks.IndexOf(Selection.StartParagraph));
+                        }
+                        return;
+                     }
+                     return;
+                  }
+
                   deletedChar = startInline.InlineText.Substring(selectionStartInInline, 1);
                   startInline.InlineText = startInline.InlineText.Remove(selectionStartInInline, 1);
                }
@@ -143,9 +228,6 @@ public partial class FlowDocument
       SelectionStart_Changed(Selection, Selection.Start);
       Selection.StartParagraph.CallRequestInlinesUpdate();
       Selection.StartParagraph.CallRequestTextLayoutInfoStart();
-
-
-
    }
 
    internal void InsertLineBreak()
@@ -400,6 +482,33 @@ public partial class FlowDocument
 
    internal void DeleteWord(bool backspace)
    {
+      var inline = Selection.GetStartInline();
+
+      if (inline is EditableRun run && run.IsVariable)
+      {
+         RemoveVariableRun(run);
+         return;
+      }
+
+      if (backspace)
+      {
+         var prev = GetPreviousInline(inline);
+         if (prev is EditableRun prevRun && prevRun.IsVariable)
+         {
+            RemoveVariableRun(prevRun);
+            return;
+         }
+      }
+      else
+      {
+         var next = GetNextInline(inline);
+         if (next is EditableRun nextRun && nextRun.IsVariable)
+         {
+            RemoveVariableRun(nextRun);
+            return;
+         }
+      }
+
       if (backspace)
          if (Selection.Start <= 0) return;
       else
@@ -450,5 +559,34 @@ public partial class FlowDocument
 
    }
 
+   public event Action<string>? VarDeleted;
 
+   private void RemoveVariableRun(EditableRun er)
+   {
+      Paragraph p = Selection.StartParagraph;
+      int parIndex = Blocks.IndexOf(p);
+
+      int removedLength = er.InlineLength;
+      int variableStart = er.TextPositionOfInlineInParagraph + p.StartInDoc;
+
+      p.Inlines.Remove(er);
+
+      if (p.Inlines.Count == 0)
+      {
+         var emptyRun = new EditableRun("");
+         p.Inlines.Add(emptyRun);
+      }
+
+      UpdateTextRanges(variableStart, -removedLength);
+      UpdateBlockAndInlineStarts(parIndex);
+
+      Selection.Start = variableStart;
+      Selection.CollapseToStart();
+
+      SelectionStart_Changed(Selection, Selection.Start);
+      p.CallRequestInlinesUpdate();
+      p.CallRequestTextLayoutInfoStart();
+
+      VarDeleted?.Invoke(er.VariableName);
+   }
 }

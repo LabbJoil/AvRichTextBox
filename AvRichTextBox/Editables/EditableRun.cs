@@ -11,6 +11,10 @@ public class EditableRun : Run, IEditable, INotifyPropertyChanged
    public new event PropertyChangedEventHandler? PropertyChanged;
    private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
 
+   // TODO: создать наследуемый класс
+   public bool IsVariable { get; set; } = false;
+   public string VariableName { get; set; } = string.Empty;
+
    public EditableRun() { }
 
    public EditableRun(string text)
