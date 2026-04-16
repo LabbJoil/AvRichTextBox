@@ -208,21 +208,6 @@ internal static partial class RtfConversions
                continue;
             }
 
-            //if (text.Trim() == "__VAR_END__")
-            //{
-            //   insideVariable = false;
-
-            //   var variableRun = new EditableRun(variableBuffer.ToString())
-            //   {
-            //      IsVariable = true,
-            //      Background = new SolidColorBrush(Colors.Gray)
-            //   };
-
-            //   returnList.Add(variableRun);
-            //   variableBuffer.Clear();
-            //   continue;
-            //}
-
             if (text.Trim() == "__VAR_END__")
             {
                insideVariable = false;
@@ -257,12 +242,6 @@ internal static partial class RtfConversions
 
                continue;
             }
-
-            //if (insideVariable)
-            //{
-            //   variableBuffer.Append(text);
-            //   continue;
-            //}
 
             if (insideVariable)
             {

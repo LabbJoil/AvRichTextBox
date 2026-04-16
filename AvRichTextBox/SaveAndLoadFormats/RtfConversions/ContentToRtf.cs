@@ -196,7 +196,7 @@ internal static partial class RtfConversions
          {
             if (run.IsVariable)
             {
-               iedSB.Append($@"\v __VAR_START__ \v0 {GetRtfRunText(run.VariableName, ref currentLang)}\v __VAR_END__ \v0 ");
+               iedSB.Append($@"{{\v __VAR_START__}}{{\v0 {GetRtfRunText(run.VariableName, ref currentLang)}}}{{\v __VAR_END__ \v0}} ");
             }
             else
             {
@@ -246,7 +246,7 @@ internal static partial class RtfConversions
          }
       }
          
-      fontAndColorTableSB.Append(@"{\rtf1\ansicpg1251\deff0 {\fonttbl");
+      fontAndColorTableSB.Append(@"{\rtf1\ansi\deff0 {\fonttbl");
       foreach (var kvp in fontMap)
          fontAndColorTableSB.Append($@"{{\f{kvp.Value}\fnil {kvp.Key};}}");
       fontAndColorTableSB.Append('}');
@@ -315,10 +315,8 @@ internal static partial class RtfConversions
 
          if (c is '\\' or '{' or '}')
             sb.Append(@"\" + c);
-         else if (c == ' ')
-            sb.Append(@"\u32?");
          else if (c > 127)
-            sb.Append(@"\u" + (int)c + "?");
+            sb.Append(@"\u" + (int)c + " ");
          else
             sb.Append(c);
       }

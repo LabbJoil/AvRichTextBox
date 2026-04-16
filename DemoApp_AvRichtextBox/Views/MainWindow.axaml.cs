@@ -42,7 +42,8 @@ public partial class MainWindow : Window
       MainRTB.FlowDocument.Selection_Changed += FlowDocument_Selection_Changed;
 
       progChange = false;
-      MainRTB.InsertVariable("Вова 1");
+      MainRTB.InsertVariable("111 cdd вава 67 fg");
+      MainRTB.InsertVariable("Кака");
       var ttt = MainRTB.SaveRtf();
       await MainRTB.LoadRtf(ttt);
 
