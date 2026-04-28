@@ -1,4 +1,6 @@
 ﻿
+using Avalonia.Media;
+
 namespace AvRichTextBox;
 
 public interface IEditable
@@ -19,7 +21,7 @@ public interface IEditable
    public bool IsRun => this.GetType() == typeof(EditableRun);
    public bool IsUIContainer => this.GetType() == typeof(EditableInlineUIContainer);
    public bool IsLineBreak => this.GetType() == typeof(EditableLineBreak);
-
+   public TextAlignment? TextAlignment { get; set; }
 
 #if DEBUG
    // FOR DEBUGGER PANEL

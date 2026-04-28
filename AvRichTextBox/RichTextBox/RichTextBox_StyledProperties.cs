@@ -1,4 +1,5 @@
-﻿using Avalonia.Data;
+﻿using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Media;
 
 namespace AvRichTextBox;
@@ -61,5 +62,17 @@ public partial class RichTextBox
       set => SetValue(SelectionBrushProperty, value);
    }
 
+   public static readonly StyledProperty<Color> CaretColorProperty = AvaloniaProperty.Register<RichTextBox, Color>(nameof(CaretColor), Colors.Black);
+   public Color CaretColor
+   {
+      get => GetValue(CaretColorProperty);
+      set { SetValue(CaretColorProperty, value); }
+   }
 
+   public static readonly StyledProperty<ScrollBarVisibility> VerticalScrollBarVisibilityProperty = AvaloniaProperty.Register<RichTextBox, ScrollBarVisibility>(nameof(VerticalScrollBarVisibility), ScrollBarVisibility.Auto);
+   public ScrollBarVisibility VerticalScrollBarVisibility
+   {
+      get => GetValue(VerticalScrollBarVisibilityProperty);
+      set { SetValue(VerticalScrollBarVisibilityProperty, value); }
+   }
 }

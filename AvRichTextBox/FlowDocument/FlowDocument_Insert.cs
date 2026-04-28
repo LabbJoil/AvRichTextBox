@@ -41,6 +41,36 @@ public partial class FlowDocument
    {
       if (Selection.GetStartInline() is not IEditable startInline || startInline.GetType() == typeof(EditableInlineUIContainer)) return;
 
+      if (startInline is EditableRun variableRun && variableRun.IsVariable)
+      {
+         var p = Selection.StartParagraph;
+         var parIndex = Blocks.IndexOf(p);
+
+         var varStart = variableRun.TextPositionOfInlineInParagraph + p.StartInDoc;
+         var varEnd = varStart + variableRun.InlineLength;
+
+         if (Selection.Start > varStart && Selection.Start < varEnd)
+            return;
+
+         var inlineIndex = p.Inlines.IndexOf(variableRun);
+
+         var newRun = new EditableRun("");
+
+         if (Selection.Start == varEnd)
+            p.Inlines.Insert(inlineIndex + 1, newRun);
+         else if (Selection.Start == varStart)
+            p.Inlines.Insert(inlineIndex, newRun);
+
+         UpdateBlockAndInlineStarts(parIndex);
+
+         Selection.Start = newRun.TextPositionOfInlineInParagraph + p.StartInDoc;
+         Selection.CollapseToStart();
+
+         SelectionStart_Changed(Selection, Selection.Start);
+
+         startInline = newRun;
+      }
+
       if (insertText != null)
       {
          if (Selection.Length > 0)

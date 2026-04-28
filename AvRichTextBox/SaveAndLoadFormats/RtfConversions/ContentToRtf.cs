@@ -327,7 +327,17 @@ internal static partial class RtfConversions
                iedSB.Append(@"\highlight0 "); // Reset background to default
 
             if (!string.IsNullOrEmpty(run.Text))
-               iedSB.Append(GetRtfRunText(run.Text!, ref currentLang));
+            {
+               if (run.IsVariable)
+               {
+                  iedSB.Append($@"{{\v __VAR_START__}}{{\v0 {GetRtfRunText(run.VariableName, ref currentLang)}}}{{\v __VAR_END__ \v0}} ");
+               }
+               else
+               {
+                  string escaped = GetRtfRunText(run.Text, ref currentLang);
+                  iedSB.Append(escaped);
+               }
+            }
 
             break;
 
@@ -483,9 +493,9 @@ internal static partial class RtfConversions
          }
 
          if (c is '\\' or '{' or '}')
-            sb.Append(@"\" + c); // RTF control characters
-         else if (c > 127) // Non-ASCII (double-byte characters)
-            sb.Append(@"\u" + (int)c + "?"); // Unicode escape
+            sb.Append(@"\" + c);
+         else if (c > 127)
+            sb.Append(@"\u" + (int)c + " ");
          else
             sb.Append(c);
 

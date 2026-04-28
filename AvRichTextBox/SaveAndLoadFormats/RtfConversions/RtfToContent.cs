@@ -3,6 +3,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DynamicData;
 using RtfDomParserAv;
+using System.Text;
 using System.Text.RegularExpressions;
 using static AvRichTextBox.HelperMethods;
 
@@ -232,6 +233,7 @@ internal static partial class RtfConversions
       //newpar.Margin = new Thickness(rtfpar.Format.xxx);
       
       List<IEditable> addInlines = GetRtfTextElementsAsInlines(rtfpar.Elements);
+      addInlines.ForEach(x => x.TextAlignment = (TextAlignment)rtfpar.Format.Align);
 
       newpar.Inlines.AddRange(addInlines);
 
@@ -250,6 +252,9 @@ internal static partial class RtfConversions
 
    internal static List<IEditable> GetRtfTextElementsAsInlines(RTFDomElementList elements)
    {
+      var insideVariable = false;
+      StringBuilder variableBuffer = new();
+      DocumentFormatInfo? variableFormat = null;
       List<IEditable> returnList = [];
 
       foreach (RTFDomElement domelm in elements)
@@ -307,9 +312,60 @@ internal static partial class RtfConversions
          }
 
          else if (domelm is RTFDomText rtftext2)
-         {            
-            //EditableRun erun = new(DecodeRtfUnicode(rtftext2.GetText))
-            EditableRun erun = new(rtftext2.Text)
+         {
+            string text = rtftext2.Text ?? "";
+
+            if (text.Trim() == "__VAR_START__")
+            {
+               insideVariable = true;
+               variableBuffer.Clear();
+               continue;
+            }
+
+            if (text.Trim() == "__VAR_END__")
+            {
+               insideVariable = false;
+               var variableName = variableBuffer.ToString();
+
+               var variableRun = new EditableRun($"[[{variableName}]]")
+               {
+                  IsVariable = true,
+                  VariableName = variableName
+               };
+
+               if (variableFormat != null)
+               {
+                  variableRun.FontSize = variableFormat.FontSize;
+                  variableRun.FontFamily = new FontFamily(variableFormat.FontName);
+                  variableRun.Foreground = new SolidColorBrush(variableFormat.TextColor);
+                  variableRun.Background = new SolidColorBrush(variableFormat.BackColor);
+
+                  if (variableFormat.Bold)
+                     variableRun.FontWeight = FontWeight.Bold;
+
+                  if (variableFormat.Italic)
+                     variableRun.FontStyle = FontStyle.Italic;
+
+                  if (variableFormat.Underline)
+                     variableRun.TextDecorations = TextDecorations.Underline;
+               }
+
+               returnList.Add(variableRun);
+               variableBuffer.Clear();
+               variableFormat = null;
+
+               continue;
+            }
+
+            if (insideVariable)
+            {
+               variableBuffer.Append(text);
+               variableFormat ??= rtftext2.Format;
+               continue;
+            }
+
+            //EditableRun erun = new(DecodeRtfUnicode(rtftext2.Text))
+            EditableRun erun = new(rtftext2.Text ?? "")
             {
                FontSize = rtftext2.Format.FontSize
             };

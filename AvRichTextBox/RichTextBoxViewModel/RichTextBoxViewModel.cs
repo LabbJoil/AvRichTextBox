@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -19,7 +20,7 @@ public class RichTextBoxViewModel : INotifyPropertyChanged
    public FlowDocument FlowDoc { get; set { field = value; NotifyPropertyChanged(nameof(FlowDoc)); FlowDocChanged?.Invoke(); } } = null!;
    
    public bool RunDebuggerVisible { get; set { field = value; NotifyPropertyChanged(nameof(RunDebuggerVisible)); } }
-   public double MinWidth => RunDebuggerVisible ? 500 : 100;
+   public double MinWidth => RunDebuggerVisible ? 500 : 0;
 
    public RichTextBoxViewModel() {  }
 
@@ -28,6 +29,17 @@ public class RichTextBoxViewModel : INotifyPropertyChanged
    public double CaretHeight { get; set { field = value; NotifyPropertyChanged(nameof(CaretHeight)); } } = 5;
    public Thickness CaretMargin { get; set { field = value; NotifyPropertyChanged(nameof(CaretMargin)); } } = new(0);
    public bool CaretVisible { get; set { field = value; NotifyPropertyChanged(nameof(CaretVisible)); } } = true;
+
+   private ScrollBarVisibility _VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+   public ScrollBarVisibility VerticalScrollBarVisibility
+   {
+      get => _VerticalScrollBarVisibility;
+      set
+      {
+         _VerticalScrollBarVisibility = value;
+         NotifyPropertyChanged(nameof(VerticalScrollBarVisibility));
+      }
+   }
 
 
    internal void CalculateCaretHeightAndPosition(TextLine currTextLine, double caretMLeft, double glyphRunHeight, bool offsetTopFromHeight, BaselineAlignment balign)
@@ -60,7 +72,7 @@ public class RichTextBoxViewModel : INotifyPropertyChanged
 
       CaretHeight = glyphRunHeight;
 
-      CaretMargin = new Thickness(caretMLeft, caretMTop, 0, 0);
+      CaretMargin = new Thickness(caretMLeft + 4, caretMTop, 0, 0);
 
 
 

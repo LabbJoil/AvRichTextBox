@@ -119,7 +119,7 @@ public partial class FlowDocument : AvaloniaObject
 
    }
 
-   internal void NewDocument()
+   internal async Task NewDocument()
    {
       ClearDocument();
 
@@ -128,11 +128,11 @@ public partial class FlowDocument : AvaloniaObject
       newpar.Inlines.Add(newerun);
       Blocks.Add(newpar);
 
-      InitializeDocument();
+      await InitializeDocument();
 
    }
 
-   internal void CreateTestDocument()
+   internal async Task CreateTestDocument()
    {
       ClearDocument();
 
@@ -158,7 +158,7 @@ public partial class FlowDocument : AvaloniaObject
       Blocks.Add(newPar2);
 
 
-      InitializeDocument();
+      await InitializeDocument();
 
    }
 
@@ -181,7 +181,7 @@ public partial class FlowDocument : AvaloniaObject
 
    }
 
-   internal async void InitializeDocument()
+   internal async Task InitializeDocument()
    {
 
       Selection.Start = 0;  //necessary

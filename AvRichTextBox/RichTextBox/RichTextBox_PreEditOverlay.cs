@@ -76,7 +76,6 @@ public partial class RichTextBox
    private readonly Rectangle? _CaretRect = new()
    {
       StrokeThickness = 2,
-      Stroke = Brushes.Black,
       Height = 20,
       Width = 1.5,
       IsVisible = false,

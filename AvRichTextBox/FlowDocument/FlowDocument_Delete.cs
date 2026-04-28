@@ -6,10 +6,13 @@ namespace AvRichTextBox;
 
 public partial class FlowDocument
 {
+   public event Action<string>? VarDeleted;
+
    internal void DeleteChar(bool backspace)
    {
       int originalSelectionStart = Selection.Start;
-      
+      IEditable? startInline = Selection.GetStartInline();
+
       //keep in cell
       if (Selection.StartParagraph.IsTableCellBlock)
       {
@@ -18,12 +21,27 @@ public partial class FlowDocument
       }
 
       if (backspace)
+      {
+         if (startInline is EditableRun run && run.IsVariable)
+         {
+            RemoveVariableRun(run);
+            return;
+         }
+
          MoveSelectionLeft(true);
+         startInline = Selection.GetStartInline();
+      }
+
+      if (startInline is EditableRun er && er.IsVariable)
+      {
+         RemoveVariableRun(er);
+         return;
+      }
 
       Selection.BiasForwardStart = true;
       Selection.BiasForwardEnd = true;
 
-      if (Selection.GetStartInline() is not IEditable startInline) return;
+      if (startInline == null) return;
 
       Paragraph startP = Selection.StartParagraph;
 
@@ -65,7 +83,8 @@ public partial class FlowDocument
             }
             else
             {  // delete normal run char
-               if (startInline.InlineLength == 1 && GetNextInline(startInline) is not EditableLineBreak elb)  // keep empty run on linebreak
+               var nextInline = GetNextInline(startInline);
+               if (startInline.InlineLength == 1 && nextInline is not EditableLineBreak elb)  // keep empty run on linebreak
                {
                   if (startInline.CloneWithId() is EditableRun removedRunClone)
                   {
@@ -76,6 +95,47 @@ public partial class FlowDocument
                else
                {
                   selectionStartInInline = GetCharPosInInline(startInline, Selection.Start);
+
+                  if (selectionStartInInline == startInline.InlineLength)
+                  {
+                     //Info: возможно не нужно
+                     nextInline = GetNextInline(startInline);
+                     if (nextInline is EditableRun nextRun && nextRun.InlineLength > 0)
+                     {
+                        if (nextRun.IsVariable)
+                           RemoveVariableRun(nextRun);
+                        else
+                        {
+                           nextRun.InlineText = nextRun.InlineText.Remove(0, 1);
+                           UpdateTextRanges(Selection.Start, -1);
+                           UpdateBlockAndInlineStarts(Blocks.IndexOf(Selection.StartParagraph));
+                        }
+                        return;
+                     }
+                     return;
+                  }
+                  if (backspace && selectionStartInInline == 0)
+                  {
+                     var prevInline = GetPreviousInline(startInline);
+                     if (prevInline is EditableRun prevRun && prevRun.InlineLength > 0)
+                     {
+                        if (prevRun.IsVariable)
+                        {
+                           RemoveVariableRun(prevRun);
+                        }
+                        else
+                        {
+                           int lastIndex = prevRun.InlineLength - 1;
+                           prevRun.InlineText = prevRun.InlineText.Remove(lastIndex, 1);
+
+                           UpdateTextRanges(Selection.Start - 1, -1);
+                           UpdateBlockAndInlineStarts(Blocks.IndexOf(Selection.StartParagraph));
+                        }
+                        return;
+                     }
+                     return;
+                  }
+
                   if (selectionStartInInline < startInline.InlineLength)
                      startInline.InlineText = startInline.InlineText.Remove(selectionStartInInline, 1);   // undo handled by PropertyChanged: Text
                }
@@ -278,11 +338,35 @@ public partial class FlowDocument
    
    internal void DeleteWord(bool backspace)
    {
+      var inline = Selection.GetStartInline();
+
+      if (inline is EditableRun run && run.IsVariable)
+      {
+         RemoveVariableRun(run);
+         return;
+      }
+
       if (backspace)
+      {
+         if (inline != null && GetPreviousInline(inline) is EditableRun prevRun && prevRun.IsVariable)
+         {
+            RemoveVariableRun(prevRun);
+            return;
+         }
+
          if (Selection.Start <= 0) return;
+      }
       else
+      {
+         if (inline != null && GetNextInline(inline) is EditableRun nextRun && nextRun.IsVariable)
+         {
+            RemoveVariableRun(nextRun);
+            return;
+         }
+
          if (Selection.Start >= Selection.StartParagraph.StartInDoc + Selection.StartParagraph.BlockLength)
             return;
+      }
 
       
       int originalSelectionStart = Selection.Start;
@@ -327,5 +411,32 @@ public partial class FlowDocument
 
    }
 
+   private void RemoveVariableRun(EditableRun er)
+   {
+      Paragraph p = Selection.StartParagraph;
+      int parIndex = Blocks.IndexOf(p);
 
+      int removedLength = er.InlineLength;
+      int variableStart = er.TextPositionOfInlineInParagraph + p.StartInDoc;
+
+      p.Inlines.Remove(er);
+
+      if (p.Inlines.Count == 0)
+      {
+         var emptyRun = new EditableRun("");
+         p.Inlines.Add(emptyRun);
+      }
+
+      UpdateTextRanges(variableStart, -removedLength);
+      UpdateBlockAndInlineStarts(parIndex);
+
+      Selection.Start = variableStart;
+      Selection.CollapseToStart();
+
+      SelectionStart_Changed(Selection, Selection.Start);
+      p.CallRequestInlinesUpdate();
+      p.CallRequestTextLayoutInfoStart();
+
+      VarDeleted?.Invoke(er.VariableName);
+   }
 }

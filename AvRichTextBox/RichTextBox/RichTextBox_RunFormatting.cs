@@ -68,6 +68,9 @@ public partial class RichTextBox
       if (IsReadOnly) return;
       if (FlowDoc.Selection.GetStartInline() is not IEditable startInline) return;
 
+      if (startInline is EditableRun er && er.IsVariable)
+         return;
+
       var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
       if (clipboard == null) return;
 

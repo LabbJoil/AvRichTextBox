@@ -87,14 +87,20 @@ public partial class RichTextBox : UserControl
 
       this.Focusable = true;
 
+      this.GetObservable(CaretColorProperty)
+        .Subscribe(color =>
+        {
+           if (_CaretRect != null)
+              _CaretRect.Stroke = new SolidColorBrush(color);
+        });
    }
 
-   private void RichTextBox_Initialized(object? sender, EventArgs e)
+   private async void RichTextBox_Initialized(object? sender, EventArgs e)
    {
       if (FlowDocument == null)
       { // only create initial FlowDocument if not already existing
          FlowDocument = new();
-         FlowDoc.NewDocument();
+         await FlowDoc.NewDocument();
       }
    }
 
@@ -135,7 +141,7 @@ public partial class RichTextBox : UserControl
       UpdateAllInlines();
    }
 
-   private void RichTextBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+   private async void RichTextBox_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
    {
       if (e.Property == FlowDocumentProperty)
       {
@@ -152,7 +158,7 @@ public partial class RichTextBox : UserControl
 
          RtbVm.FlowDoc.SelectionBrush = this.SelectionBrush;
 
-         RtbVm.FlowDoc.InitializeDocument();
+         await RtbVm.FlowDoc.InitializeDocument();
          CreateClient();
 
       }
@@ -178,15 +184,23 @@ public partial class RichTextBox : UserControl
          }
 
       }
+      else if (e.Property == VerticalScrollBarVisibilityProperty)
+      {
+         RtbVm.VerticalScrollBarVisibility = VerticalScrollBarVisibility;
+      }
    }
 
    private void RichTextBox_GotFocus(object? sender, FocusChangedEventArgs e)
    {
+      if (_CaretRect != null)
+         _CaretRect.IsVisible = true;
       //Debug.WriteLine("Got focus rtb");
    }
 
    private void RichTextBox_LostFocus(object? sender, FocusChangedEventArgs e)
    {
+      if (_CaretRect != null)
+         _CaretRect.IsVisible = false;
       //Debug.WriteLine("lost focus rtb");
    }
 
@@ -202,25 +216,25 @@ public partial class RichTextBox : UserControl
 
 
    public void InvalidateCaret() { RtbVm.CaretVisible = true;  }
-   public void NewDocument() => FlowDoc.NewDocument();
-   public void CreateNewDocument() { FlowDoc.NewDocument();  RtbVm.RTBScrollOffset = new Vector(0, 0);  }
+   public async Task NewDocument() => await FlowDoc.NewDocument();
+   public async Task CreateNewDocument() { await FlowDoc.NewDocument();  RtbVm.RTBScrollOffset = new Vector(0, 0);  }
    //Load/save
-	public void LoadRtf(string rtf) => FlowDoc.LoadRtf(rtf);
-   public void LoadRtfDoc(string fileName) => FlowDoc.LoadRtfFromFile(fileName);
+	public async Task LoadRtf(string rtf) => await FlowDoc.LoadRtf(rtf);
+   public async Task LoadRtfDoc(string fileName) => await FlowDoc.LoadRtfFromFile(fileName);
 
 	public string SaveRtf() => FlowDoc.SaveRtf();
    public void SaveRtfDoc(string fileName) => FlowDoc.SaveRtfToFile(fileName);
-   public void LoadWordDoc(string fileName) => FlowDoc.LoadWordDocFromFile(fileName);
+   public async Task LoadWordDoc(string fileName) => await FlowDoc.LoadWordDocFromFile(fileName);
    public void SaveWordDoc(string filename) => FlowDoc.SaveWordDocToFile(filename);
-	public void LoadHtml(string html) => FlowDoc.LoadHtml(html);
+	public async Task LoadHtml(string html) => await FlowDoc.LoadHtml(html);
 
 	public string SaveHtml() => FlowDoc.SaveHtml();
-   public void LoadHtmlDoc(string fileName) => FlowDoc.LoadHtmlDocFromFile(fileName);
+   public async Task LoadHtmlDoc(string fileName) => await FlowDoc.LoadHtmlDocFromFile(fileName);
    public void SaveHtmlDoc(string filename) => FlowDoc.SaveHtmlDocToFile(filename);
 	
-   public void LoadXaml (string fileName) => FlowDoc.LoadXamlFromFile(fileName);
+   public async Task LoadXaml (string fileName) => await FlowDoc.LoadXamlFromFile(fileName);
    public void SaveXamlPackage (string fileName) => FlowDoc.SaveXamlPackage(fileName);
-	public void LoadXamlString(string xaml) => FlowDoc.LoadXaml(xaml);
+	public async Task LoadXamlString(string xaml) => await FlowDoc.LoadXaml(xaml);
 	public string SaveXamlString() => FlowDoc.SaveXaml();
    public void SaveXaml (string fileName) => FlowDoc.SaveXamlToFile(fileName);
    public void LoadXamlPackage (string fileName) => FlowDoc.LoadXamlPackage(fileName); 

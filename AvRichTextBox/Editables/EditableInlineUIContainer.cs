@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.Media;
 
 namespace AvRichTextBox;
 
@@ -48,7 +49,7 @@ public class EditableInlineUIContainer : InlineUIContainer, IEditable
    public string DisplayInlineText { get => $"<UICONTAINER> => {(this.Child != null && this.Child.GetType() == typeof(Image) ? "Image" : "NoChild")}"; }
 #endif
 
-
+   public TextAlignment? TextAlignment { get; set; }
 }
 
 

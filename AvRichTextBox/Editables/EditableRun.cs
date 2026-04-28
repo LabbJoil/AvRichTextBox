@@ -5,7 +5,11 @@ namespace AvRichTextBox;
 
 public class EditableRun : Run, IEditable
 {
-   
+   // TODO: создать наследуемый класс
+   public bool IsVariable { get; set; } = false;
+   public string VariableName { get; set; } = string.Empty;
+   public TextAlignment? TextAlignment { get; set; }
+
    public EditableRun() { InitializeRun();  }
 
    public EditableRun(string text)

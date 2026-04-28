@@ -23,7 +23,6 @@
 	  <PackageReleaseNotes>ver 1.7.7: Caret size and position fixed for most cases</PackageReleaseNotes>
       
      <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-	  <PackageOutputPath>D:\PROG\LocalNuget\AvRichTextBox</PackageOutputPath>
 	  
 	  <Version>1.7.7</Version>
 	  <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
@@ -55,6 +54,10 @@
     <None Remove="SaveAndLoadFormats\Xaml\XamlPackageData\.rels" />
     <None Remove="SaveAndLoadFormats\Xaml\XamlPackageData\[Content_Types].xml" />
   </ItemGroup>
+
+	<ItemGroup>
+		<None Include="RtfDomParserAv.dll" Pack="true" PackagePath="lib/net10.0/" />
+	</ItemGroup>
 
   
   <ItemGroup>

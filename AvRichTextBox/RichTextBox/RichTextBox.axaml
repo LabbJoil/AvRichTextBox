@@ -61,7 +61,7 @@
 
 	
 		<ScrollViewer x:Name="FlowDocSV"  HorizontalScrollBarVisibility="Disabled" Margin="0" Padding="0" Offset="{Binding RTBScrollOffset, Mode=OneWay}"  ScrollChanged="ScrollViewer_ScrollChanged"
-					  PointerPressed="FlowDocSV_PointerPressed" PointerMoved="FlowDocSV_PointerMoved" PointerReleased="FlowDocSV_PointerReleased"  >
+					  VerticalScrollBarVisibility="{Binding VerticalScrollBarVisibility}" PointerPressed="FlowDocSV_PointerPressed" PointerMoved="FlowDocSV_PointerMoved" PointerReleased="FlowDocSV_PointerReleased"  >
 							
 
 			<Grid VerticalAlignment="Top">
@@ -90,7 +90,7 @@
 										<Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BorderBrush}" CornerRadius="3" Margin="{Binding Margin}"
 											  VerticalAlignment="Top" HorizontalAlignment="Stretch" Padding="0">
 
-											<local:EditableParagraph Classes="paragraphBindings" xml:space="preserve"	
+											<local:EditableParagraph Classes="paragraphBindings" xml:space="preserve" Padding="4,0"
 													MouseMove="EditableParagraph_MouseMove" 
 													LostFocus="EditableParagraph_LostFocus" 
 													SelectionStartRect_Changed="SelectionStart_RectChanged"
@@ -123,7 +123,7 @@
 														<Grid>
 															<local:EditableCell Padding="{Binding Padding}"  BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BorderBrush}" Background="{Binding CellBackground}" >
 															
-																<local:EditableParagraph x:DataType="local:Paragraph" Classes="paragraphBindings" DataContext="{Binding CellContent}" xml:space="preserve" 
+																<local:EditableParagraph x:DataType="local:Paragraph" Classes="paragraphBindings" DataContext="{Binding CellContent}" xml:space="preserve" Padding="4,0"
 																	MouseMove="EditableParagraph_MouseMove" 
 																	LostFocus="EditableParagraph_LostFocus" 
 																	SelectionStartRect_Changed="SelectionStart_RectChanged"

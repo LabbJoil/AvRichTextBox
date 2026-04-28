@@ -1,4 +1,6 @@
-﻿namespace AvRichTextBox;
+﻿using Avalonia.Media;
+
+namespace AvRichTextBox;
 
 public partial class RichTextBox
 {
@@ -13,6 +15,135 @@ public partial class RichTextBox
       if (PreeditOverlay.IsVisible)
          HideIMEOverlay();
          
+   }
+
+   // TODO: вынести метод в спец файл для внешних портов
+   public void InsertVariable(string name)
+   {
+      if (IsReadOnly)
+         return;
+
+      string text = $"[[{name}]]";
+      var selection = FlowDoc.Selection;
+
+      if (selection.Length > 0)
+         FlowDoc.DeleteSelection();
+
+      var paragraph = selection.StartParagraph;
+      var startInline = FlowDoc.GetStartInline(selection.Start);
+
+      if (startInline is not IEditable editable)
+         return;
+
+      int charPos = FlowDoc.GetCharPosInInline(editable, selection.Start);
+
+      if (editable is not EditableRun run)
+         return;
+
+      var splitRuns = FlowDoc.SplitRunAtPos(selection.Start, run, charPos);
+
+      var beforeRun = splitRuns[0];
+      int runIndex = paragraph.Inlines.IndexOf(beforeRun);
+
+      var variableRun = new EditableRun(text)
+      {
+         IsVariable = true,
+         VariableName = name,
+         FontFamily = run.FontFamily,
+         FontSize = run.FontSize,
+         FontWeight = run.FontWeight,
+         FontStyle = run.FontStyle,
+         TextDecorations = run.TextDecorations,
+         Foreground = run.Foreground,
+         Background = run.Background
+      };
+
+      paragraph.Inlines.Insert(runIndex + 1, variableRun);
+
+      paragraph.CallRequestInlinesUpdate();
+      FlowDoc.UpdateBlockAndInlineStarts(paragraph);
+
+      FlowDoc.Select(selection.Start + text.Length, 0);
+      FlowDoc.UpdateSelection();
+   }
+
+   // TODO: вынести метод в спец файл для внешних портов
+   public void DeleteVarByName(string name)
+   {
+      foreach (var block in FlowDoc.Blocks)
+      {
+         if (block is not Paragraph paragraph)
+            continue;
+
+         for (int i = paragraph.Inlines.Count - 1; i >= 0; i--)
+            if (paragraph.Inlines[i] is EditableRun run && run.IsVariable && run.VariableName == name)
+               paragraph.Inlines.RemoveAt(i);
+
+         paragraph.CallRequestInlinesUpdate();
+         FlowDoc.UpdateBlockAndInlineStarts(paragraph);
+      }
+
+      FlowDoc.UpdateSelection();
+   }
+
+   // TODO: вынести метод в спец файл для внешних портов
+   public void ChangeVarToValue(string name, string value)
+   {
+      foreach (var block in FlowDoc.Blocks)
+      {
+         if (block is not Paragraph paragraph)
+            continue;
+
+         for (int i = paragraph.Inlines.Count - 1; i >= 0; i--)
+            if (paragraph.Inlines[i] is EditableRun run && run.IsVariable && run.VariableName == name)
+               run.Text = value;
+
+         paragraph.CallRequestInlinesUpdate();
+         FlowDoc.UpdateBlockAndInlineStarts(paragraph);
+      }
+
+      FlowDoc.UpdateSelection();
+   }
+
+   // TODO: вынести метод в спец файл для внешних портов
+   public void ChangeVars(string oldVarName, string newVarName)
+   {
+      foreach (var block in FlowDoc.Blocks)
+      {
+         if (block is not Paragraph paragraph)
+            continue;
+
+         for (int i = paragraph.Inlines.Count - 1; i >= 0; i--)
+            if (paragraph.Inlines[i] is EditableRun run && run.IsVariable && run.VariableName == oldVarName)
+            {
+               run.VariableName = newVarName;
+               run.Text = $"[[{newVarName}]]";
+            }
+
+         paragraph.CallRequestInlinesUpdate();
+         FlowDoc.UpdateBlockAndInlineStarts(paragraph);
+      }
+
+      FlowDoc.UpdateSelection();
+   }
+
+   // TODO: вынести метод в спец файл для внешних портов
+   public void DeleteAllVariables()
+   {
+      foreach (var block in FlowDoc.Blocks)
+      {
+         if (block is not Paragraph paragraph)
+            continue;
+
+         for (int i = paragraph.Inlines.Count - 1; i >= 0; i--)
+         {
+            if (paragraph.Inlines[i] is EditableRun r && r.IsVariable)
+               paragraph.Inlines.RemoveAt(i);
+         }
+
+         paragraph.CallRequestInlinesUpdate();
+         FlowDoc.UpdateBlockAndInlineStarts(paragraph);
+      }
    }
 
    private void HideIMEOverlay()
@@ -67,8 +198,14 @@ public partial class RichTextBox
       else
       {
          if (backspace)
-            if (FlowDoc.Selection.Start == 0) return;
-         else
+            if (FlowDoc.Selection.Start == 0)
+            {
+               if (FlowDoc.Blocks.Count > 0 && FlowDoc.Blocks[0] is Paragraph paragraph)
+                  paragraph.TextAlignment = TextAlignment.Left;
+               RtbVm.CaretMargin = new Thickness(0, 0, 0, 0);
+               return;
+            }
+            else
             if (FlowDoc.Selection.Start >= FlowDoc.Selection.StartParagraph.StartInDoc + FlowDoc.Selection.StartParagraph.BlockLength)
                return;
 

@@ -38,6 +38,8 @@ public class Paragraph : Block
          ied.MyFlowDoc = this.MyFlowDoc;
          ied.IsTableCellInline = this.IsTableCellBlock;
          ied.IsLastInlineOfParagraph = ied == this.Inlines[^1];
+         if (ied.TextAlignment != null)
+            TextAlignment = (TextAlignment)ied.TextAlignment;
       }
    }
 

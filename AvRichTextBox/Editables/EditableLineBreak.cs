@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls.Documents;
+using Avalonia.Media;
 
 namespace AvRichTextBox;
 
@@ -23,6 +24,7 @@ public class EditableLineBreak : LineBreak, IEditable
 
    public bool IsEmpty => false;
    public bool IsLastInlineOfParagraph { get; set; }
+   public TextAlignment? TextAlignment { get; set; }
 
    public IEditable Clone() => new EditableLineBreak() { MyParagraphId = this.MyParagraphId, MyFlowDoc = this.MyFlowDoc, }; //, Id = this.Id };
 
